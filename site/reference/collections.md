@@ -70,8 +70,9 @@ Envelope: `{ items, metadata: { nextCursor, nextPage } }`.
 ```
 
 - `itemCount` counts only **accepted** items in the collection.
-- `coverImageUrl` is a ready-to-use CDN URL (or `null` when there is no viewable
-  cover, e.g. a mature cover clamped out in a restricted region).
+- `coverImageUrl` is a ready-to-use CDN URL, or `null` when the cover fails the
+  [media eligibility checks](#get-a-collection). Listing applies its own `nsfw`
+  and regional browsing ceiling.
 - `metadata.nextCursor` / `metadata.nextPage` are omitted on the last page.
 
 ### Example
@@ -132,10 +133,10 @@ GET /api/v1/collections/{id}
   rating**. Use `coverImage.nsfwLevel` to assess the specific cover.
 - `coverImage` is `null` when no eligible cover is available. Otherwise it contains
   the cover's image ID, ready-to-use CDN media URL, media type (`image` or `video`),
-  original dimensions (nullable), and its own rating. Only scanned, positively
-  rated media without a review, terms-of-service or block flag and within the endpoint's existing
-  public/region ceiling are included. Unrated, pending, blocked, or restricted
-  covers are omitted from both cover fields.
+  original dimensions (nullable), and its own rating. Both endpoints require
+  scanned, positively rated media within their browsing ceiling, without review,
+  terms-of-service, block, `poi`, or `minor` flags. Unrated, unscanned, processing,
+  under-review, blocked, or restricted covers return `null`.
 - `coverImageUrl` remains the same ready-to-use CDN media URL as
   `coverImage.url`, or `null`. The URL format follows the existing media delivery
   convention; a `video` cover is not guaranteed to be a still-image thumbnail.
